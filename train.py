@@ -233,6 +233,9 @@ def main(gpu, ngpus_per_node, args):
     train(training_dbs, validation_db, system_config, model, args)
 
 if __name__ == "__main__":
+    import warnings
+    warnings.filterwarnings('ignore')
+
     args = parse_args()
 
     distributed = args.distributed

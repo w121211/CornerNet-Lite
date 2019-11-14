@@ -48,7 +48,8 @@ class NetworkFactory(object):
             self.network = convert_syncbn_model(self.network)
             self.network = DistributedDataParallel(self.network)
         else:
-            self.network = DataParallel(self.network, chunk_sizes=system_config.chunk_sizes)
+            # self.network = DataParallel(self.network, chunk_sizes=system_config.chunk_sizes)
+            pass
 
         total_params = 0
         for params in self.model.parameters():
