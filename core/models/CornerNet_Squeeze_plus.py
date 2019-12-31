@@ -93,8 +93,8 @@ class model(hg_net):
 
         # tl_heats = nn.ModuleList([self._pred_mod(80) for _ in range(stacks)])
         # br_heats = nn.ModuleList([self._pred_mod(80) for _ in range(stacks)])
-        tl_heats = nn.ModuleList([self._pred_mod(13) for _ in range(stacks)])
-        br_heats = nn.ModuleList([self._pred_mod(13) for _ in range(stacks)])
+        tl_heats = nn.ModuleList([self._pred_mod(11) for _ in range(stacks)])
+        br_heats = nn.ModuleList([self._pred_mod(11) for _ in range(stacks)])
         for tl_heat, br_heat in zip(tl_heats, br_heats):
             torch.nn.init.constant_(tl_heat[-1].bias, -2.19)
             torch.nn.init.constant_(br_heat[-1].bias, -2.19)
