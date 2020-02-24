@@ -25,7 +25,7 @@ class CornerNet_Squeeze(Base):
 
         cfg_path   = get_file_path("..", "configs", "CornerNet_Squeeze.json")
         # model_path = get_file_path("..", "cache", "nnet", "CornerNet_Squeeze", "CornerNet_Squeeze_500000.pkl")
-        model_path = get_file_path("..", "cache", "nnet", "CornerNet_Squeeze", "CornerNet_Squeeze_275000.pkl")
+        model_path = get_file_path("..", "cache", "nnet", "CornerNet_Squeeze", "CornerNet_Squeeze_405000.pkl")
 
         cfg_sys, cfg_db = load_cfg(cfg_path)
         sys_cfg = SystemConfig().update_config(cfg_sys)
@@ -48,3 +48,21 @@ class CornerNet_Saccade(Base):
 
         cornernet = load_nnet(sys_cfg, model())
         super(CornerNet_Saccade, self).__init__(coco, cornernet, cornernet_saccade_inference, model=model_path)
+
+
+class CornerNet_Squeeze_plus(Base):
+    def __init__(self, *model_path):
+        from .test.cornernet_plus import cornernet_inference
+        from .models.CornerNet_Squeeze_plus import model
+
+        cfg_path   = get_file_path("..", "configs", "CornerNet_Squeeze_plus.json")
+        # model_path = get_file_path("..", "cache", "nnet", "CornerNet_Squeeze", "CornerNet_Squeeze_500000.pkl")
+        # model_path = get_file_path("..", "cache", "nnet", "CornerNet_Squeeze_plus", "CornerNet_Squeeze_plus_500000.pkl")
+        model_path = get_file_path(*model_path)
+
+        cfg_sys, cfg_db = load_cfg(cfg_path)
+        sys_cfg = SystemConfig().update_config(cfg_sys)
+        coco    = COCO(cfg_db)
+
+        cornernet = load_nnet(sys_cfg, model())
+        super(CornerNet_Squeeze_plus, self).__init__(coco, cornernet, cornernet_inference, model=model_path)

@@ -10,7 +10,7 @@ misc/outputs
 evaluation/evaluate_object
 evaluation/analyze_object
 
-nnet/__pycache__/
+__pycache__/
 
 *.swp
 

@@ -32,7 +32,7 @@ def _clip_detections(image, detections):
     return detections
 
 
-def cornernet(system_configs, db, k_ind, data_aug, debug):
+def cornernet_plus(system_configs, db, k_ind, data_aug, debug):
     data_rng = system_configs.data_rng
     batch_size = system_configs.batch_size
 
@@ -49,11 +49,11 @@ def cornernet(system_configs, db, k_ind, data_aug, debug):
     gaussian_iou = db.configs["gaussian_iou"]
     gaussian_rad = db.configs["gaussian_radius"]
 
-    max_tag_len = 128
+    max_tag_len = 1024
 
     # allocating memory
     images = np.zeros(
-        (batch_size, 3, input_size[0], input_size[1]), dtype=np.float32)
+        (batch_size, 4, input_size[0], input_size[1]), dtype=np.float32)
     tl_heatmaps = np.zeros(
         (batch_size, categories, output_size[0], output_size[1]), dtype=np.float32)
     br_heatmaps = np.zeros(
@@ -77,6 +77,11 @@ def cornernet(system_configs, db, k_ind, data_aug, debug):
         image_path = db.image_path(db_ind)
         image = cv2.imread(image_path)
 
+        # TODO: load image mask
+        # image_mask = cv2.imread(image_path)
+        image_mask = cv2.imread(image_path.replace(".png", "_mask.png"), 0)
+        # print(image_path.replace(".png", "_mask.png"))
+
         # reading detections
         detections = db.detections(db_ind)
 
@@ -86,16 +91,17 @@ def cornernet(system_configs, db, k_ind, data_aug, debug):
                 image, detections, rand_scales, input_size, border=border)
 
         image, detections = _resize_image(image, detections, input_size)
+        image_mask, _ = _resize_image(image_mask, detections, input_size)
         detections = _clip_detections(image, detections)
 
         width_ratio = output_size[1] / input_size[1]
         height_ratio = output_size[0] / input_size[0]
 
         # flipping an image randomly
-        if not debug and np.random.uniform() > 0.5:
-            image[:] = image[:, ::-1, :]
-            width = image.shape[1]
-            detections[:, [0, 2]] = width - detections[:, [2, 0]] - 1
+        # if not debug and np.random.uniform() > 0.5:
+        #     image[:] = image[:, ::-1, :]
+        #     width = image.shape[1]
+        #     detections[:, [0, 2]] = width - detections[:, [2, 0]] - 1
 
         if not debug:
             image = image.astype(np.float32) / 255.
@@ -104,7 +110,12 @@ def cornernet(system_configs, db, k_ind, data_aug, debug):
                 if lighting:
                     lighting_(data_rng, image, 0.1, db.eig_val, db.eig_vec)
             normalize_(image, db.mean, db.std)
-        images[b_ind] = image.transpose((2, 0, 1))
+            image_mask = image_mask.astype(np.float32) / 255.
+
+        
+        images[b_ind, 0:3] = image.transpose((2, 0, 1))
+        images[b_ind, -1] = np.expand_dims(
+            image_mask, axis=-1).transpose((2, 0, 1))
 
         for ind, detection in enumerate(detections):
             category = int(detection[-1]) - 1
